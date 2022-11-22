@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
   res.render("index")
 })
 
-app.post("/", upload.single("imageFile"), (req, res) => {
+app.post("/upload", upload.single("imageFile"), (req, res) => {
   const img = new colorThief.default()
   img
     .loadImage(req.file.path)
@@ -52,6 +52,7 @@ app.post("/", upload.single("imageFile"), (req, res) => {
     .catch((err) => {
       console.log(err)
     })
+  res.redirect("/")
 })
 
 app.listen(process.env.PORT || 8000, () => console.log("Listening at https://localhost:8000"))
