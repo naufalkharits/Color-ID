@@ -12,9 +12,11 @@
       <textarea name="base64Image" id="base64Image" cols="30" rows="10"></textarea>
       <button type="submit">Run</button>
     </form>
-
-    <% if (colorName) { %>
-    <h3>WARNA yang paling mendekati adalah <%= colorName %></h3>
+    <img id="avatar" style="width: 25%" />
+    <% if (color) { %>
+    <h3><%= color.name %></h3>
+    <h2><%= color.value %></h2>
+    <button id="speech">Speech</button>
     <% } %>
 
     <script>
@@ -34,13 +36,28 @@
       }
 
       const toBase64 = async (event) => {
+        event.preventDefault()
         const file = event.target.files[0]
         const base64 = await convertBase64(file)
+        document.getElementById("avatar").src = base64
         document.getElementById("base64Image").innerText = base64
       }
 
       document.getElementById("imageFile").addEventListener("change", (e) => {
+        e.preventDefault()
         toBase64(e)
+      })
+
+      // speech
+      let isSpeaking = true
+
+      function textToSpeech(text) {
+        let utterance = new SpeechSynthesisUtterance(text)
+        speechSynthesis.speak(utterance)
+      }
+
+      document.getElementById("speech")?.addEventListener("click", () => {
+        textToSpeech(`The color is ${document.querySelector("h3")?.innerText}`)
       })
     </script>
   </body>

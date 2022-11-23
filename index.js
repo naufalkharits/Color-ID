@@ -12,7 +12,7 @@ app.set("view engine", "ejs")
 
 app.get("/", (req, res) => {
   const context = req.dataProcessed
-  res.render("index", { colorName: context?.name })
+  res.render("index", { color: context || "" })
 })
 
 app.post(
@@ -28,13 +28,12 @@ app.post(
       )
       const nearest = nearestColor.from(names)
       req.dataProcessed = nearest(color.hex)
-      console.log(`first ${req.dataProcessed}`)
       return next()
     })
   },
   (req, res) => {
     const context = req.dataProcessed
-    res.render("index", { colorName: context.name })
+    res.render("index", { color: context || "" })
   }
 )
 
