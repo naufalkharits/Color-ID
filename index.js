@@ -38,8 +38,4 @@ app.post(
   }
 )
 
-app.listen(process.env.PORT || 8000, () =>
-  process.env.PORT
-    ? console.log(`Listening at ${process.env.PORT}`)
-    : console.log("Listening at http://localhost:8000")
-)
+app.listen(process.env.PORT || 8000)
