@@ -1,58 +1,45 @@
 const express = require("express")
-const multer = require("multer")
-const colorThief = require("pure-color-thief-node")
+const { getAverageColor } = require("fast-average-color-node")
 const nearestColor = require("nearest-color")
 const colorNameList = require("color-name-list")
 
 const app = express()
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./images")
-  },
-  filename: (req, file, cb) => {
-    console.log(file)
-    cb(null, Date.now() + "--" + file.originalname)
-  },
-})
-const upload = multer({ storage })
+app.use(express.urlencoded({ extended: true }))
+// app.use(express.static(path.join(__dirname, "public")))
 
 app.set("view engine", "ejs")
 
 app.get("/", (req, res) => {
-  res.render("index")
+  const context = req.dataProcessed
+  res.render("index", { colorName: context?.name })
 })
 
-app.post("/upload", upload.single("imageFile"), (req, res) => {
-  const img = new colorThief.default()
-  img
-    .loadImage(req.file.path)
-    .then(() => {
-      const cname = img.getColor()
-
-      const rgbToHex = (r, g, b) =>
-        "#" +
-        [r, g, b]
-          .map((x) => {
-            const hex = x.toString(16)
-            return hex.length === 1 ? "0" + hex : hex
-          })
-          .join("")
-      const hexed = rgbToHex(cname[0], cname[1], cname[2])
-
-      const colors = colorNameList.reduce(
+app.post(
+  "/api/upload",
+  (req, res, next) => {
+    getAverageColor(req.body.base64Image, {
+      mode: "precision",
+      algorithm: "dominant",
+    }).then((color) => {
+      const names = colorNameList.reduce(
         (o, { name, hex }) => Object.assign(o, { [name]: hex }),
         {}
       )
-      const nearest = nearestColor.from(colors)
-
-      console.log(hexed)
-      console.log(nearest(hexed))
+      const nearest = nearestColor.from(names)
+      req.dataProcessed = nearest(color.hex)
+      console.log(`first ${req.dataProcessed}`)
+      return next()
     })
-    .catch((err) => {
-      console.log(err)
-    })
-  res.redirect("/")
-})
+  },
+  (req, res) => {
+    const context = req.dataProcessed
+    res.render("index", { colorName: context.name })
+  }
+)
 
-app.listen(process.env.PORT || 8000, () => console.log("Listening at https://localhost:8000"))
+app.listen(process.env.PORT || 8000, () =>
+  process.env.PORT
+    ? console.log(`Listening at ${process.env.PORT}`)
+    : console.log("Listening at http://localhost:8000")
+)
