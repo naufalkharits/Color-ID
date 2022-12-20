@@ -37,4 +37,10 @@ app.post(
   }
 )
 
-app.listen(process.env.PORT || 8000)
+const server = app.listen(process.env.PORT || 8000, () =>
+  console.log(
+    `Listening on port ${server.address().port}${
+      !process.env.PORT && `\nhttp://localhost:${server.address().port}`
+    }`
+  )
+)
