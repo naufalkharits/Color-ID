@@ -1,32 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { useReducer } from "react"
+
+import { imageReducer, INITIAL_STATE } from "./reducers/imageReducer"
+
+import ColorPalettes from "./components/ColorPalettes"
+import ImagePreview from "./components/ImagePreview"
+import SearchInput from "./components/SearchInput"
+import UploadButton from "./components/UploadButton"
+
+import "./App.css"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [imageReducerState, imageReducerDispatch] = useReducer(imageReducer, INITIAL_STATE)
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div
+      style={{
+        marginTop: "4rem",
+        marginBottom: "4rem",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "2rem",
+      }}>
+      <ImagePreview image={imageReducerState.image} dispatch={imageReducerDispatch} />
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+        <UploadButton dispatch={imageReducerDispatch} />
+        <div>or</div>
+        <SearchInput dispatch={imageReducerDispatch} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {imageReducerState.colors.length ? (
+        <ColorPalettes colors={imageReducerState.colors} code={imageReducerState.code} />
+      ) : null}
     </div>
   )
 }
